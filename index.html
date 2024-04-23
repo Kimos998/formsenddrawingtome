@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Video Form</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<style>
+    /* Your CSS styles here */
+    #addVideoForm {
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        display: block;
+        margin: 0 auto;
+        max-width: 500px;
+        margin-top: 50px;
+        position: relative;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        height: 100px;
+    }
+
+    select {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+
+    .poster-upload {
+        margin-top: 10px;
+    }
+
+    input[type="submit"] {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .success-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        background-color: #dff0d8;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        color: #155724;
+        font-weight: bold;
+        text-align: center;
+        display: none;
+        z-index: 9999;
+    }
+
+    .back-to-home {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: none;
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(171, 171, 171,0.8);
+        z-index: 9998;
+        display: none;
+    }
+
+    .overlay img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        max-width: 20%;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div id="addVideoForm">
+        <form method="post" action="" name="add-film">
+            <div>
+                <label for="video_name">Video Name:</label>
+                <input type="text" id="video_name" name="name" required>
+            </div>
+            <div>
+                <label for="video_description">Video Description:</label>
+                <textarea id="video_description" name="description" required></textarea>
+            </div>
+            <div>
+                <label for="video_link">Video Link:</label>
+                <input type="text" id="video_link" name="url" required>
+            </div>
+            <div>
+                <label for="poster">Poster Image:</label>
+                <input type="text" id="poster" name="poster" required>
+            </div>
+            <div>
+                <label for="category">Category:</label>
+                <select id="category" name="category" required>
+                    <option value="action">Action</option>
+                    <option value="romantic">Romantic</option>
+                    <option value="horror">Horror</option>
+                    <option value="kids">Kids</option>
+                    <option value="science fiction">Science Fiction</option>
+                </select>
+            </div>
+            <br>
+            <div>
+                <input type="submit" value="Add Film" id="submit">
+            </div>
+        </form>
+    </div>
+    <div class="success-message">
+        Thank you! Your form is submitted successfully. Your code: <span id="code"></span>
+    </div>
+    <div class="overlay" id="overlay">
+        <img src="https://c.tenor.com/HQx5-y1Hs5MAAAAC/tenor.gif">
+    </div>
+    <button class="back-to-home" onclick="window.location.href = '/'">Back to Home</button>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw3W2ThaTzTe-QPXXwBoMzh-YXoeOYNtnXaVWlqZD7A5lEYOSFmwKoXICNKZt3PdK0k/exec';
+    const form = document.forms['add-film'];
+    const successMessage = document.querySelector('.success-message');
+    const addVideoForm = document.getElementById('addVideoForm');
+    const backButton = document.querySelector('.back-to-home');
+    const overlay = document.getElementById('overlay');
+
+    function generateRandomCode(length) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const code = generateRandomCode(9);
+        const formData = new FormData(form);
+        formData.append('code', code);
+
+        // عرض الصورة والخلفية
+        overlay.style.display = 'block';
+
+        fetch(scriptURL, { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                // إخفاء الصورة والخلفية وعرض رسالة النجاح
+                overlay.style.display = 'none';
+                successMessage.style.display = 'block';
+                document.getElementById('code').innerText = code;
+                addVideoForm.style.display = 'none';
+                backButton.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                // إخفاء الصورة والخلفية في حالة حدوث خطأ
+                overlay.style.display = 'none';
+            });
+    });
+</script>
+
+</body>
+</html>
